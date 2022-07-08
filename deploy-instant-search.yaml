@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: instant-search-deployment
+  labels:
+    app: instant-search
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: instant-search
+  template:
+    metadata:
+      labels:
+        app: instant-search
+    spec:
+      containers:
+      - name: instant-search
+        image: antgilles/algassignement:latest
+        ports:
+        - containerPort: 3000
