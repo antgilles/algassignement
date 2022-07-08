@@ -107,7 +107,7 @@ spec:
 
 ```
 ```
-kubectl apply -f   URL
+kubectl apply -f https://raw.githubusercontent.com/antgilles/algassignement/main/deploy-instant-search.yaml 
 ```
 
 Check the newly created deployment
@@ -145,7 +145,7 @@ spec:
 
 ```
 ```
-kubectl apply -f   URL
+kubectl apply -f  https://raw.githubusercontent.com/antgilles/algassignement/main/service-instant-search.yaml
 ```
 
 Check the newly created Service
