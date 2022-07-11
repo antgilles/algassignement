@@ -74,7 +74,7 @@ CMD [ "npm", "start" ]
 
 The github Action could launch specific test or image vulnerability scanning to complete CI before pushing the image. 
 
-If the build/test fails (or successes) notifications should be sent ( defaul is mail to the repo owner ) 
+If the build/test fails (or successes) notifications should be sent ( default is mail to the repo owner ) 
 
 ## Kubernetes deployment
 
@@ -199,7 +199,7 @@ Connection: keep-alive
   <title>Instant Search Tutorial</title>
 ```
 
-## Process to Update existing deployment
+## Updating an existing deployment
 
 If a new version of application is released on master branch, a new docker image is automatically built and tagged "latest".
 
