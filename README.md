@@ -1,13 +1,24 @@
-# Automated deployment procedure for instant-search-demo
+# Deployment procedure for instant-search-demo
 
 The automated deployment of the instant-search-demo code is based on:
 
 -  **Github Action** to automatically build a **docker image** and push it to a registry
--  A Deployment and a Service on **Kubernetes** cluster to ensure version rollout without downtime. 
+-  A **Kubernetes** cluster to deploy the application using rollout mecanism
 
-## CI : Preriquisites on the source code repository 
+![Pipeline](./img/AlgAssignement-pipeline.png)
 
-- Auto build and push is achieved via **github action** when a commit is pushed on the repository :
+## Integration : 
+
+### Releasing the application
+
+The application should be developped on at least one specific developpement branch, maybe features branch or hotfix branches. 
+
+After a pipeline of linting, reviewing, testing the code,  the release can be merged on the master branch.    
+
+
+### Preriquisites on the source code repository 
+
+Auto build and push is achieved via **github action** when a commit is pushed on the master branch of the repository :
 https://github.com/antgilles/instant-search-demo
   
   
@@ -35,13 +46,9 @@ jobs:
 
 > Image could be pushed on any other private or public registry 
 
-TODO : Triggering build could be limited to one specific branch "docker-build" for example 
+TODO : use github tag release if available in order to tag the docker image rather than commit sha. 
 
-TODO : use github tag if available on image tagging rather than commit sha. 
-
-TODO : Testing can be done before pushing the asset
-
-- Dockerfile :
+Here is is the Dockerfile used for image building :
 
 ```
 FROM node:9
@@ -65,8 +72,11 @@ EXPOSE 3000
 CMD [ "npm", "start" ]
 ```
 
+The github Action could launch specific test or image vulnerability scanning to complete CI before pushing the image. 
 
-## CD : Kubernetes deployment
+If the build/test fails (or successes) notifications should be sent ( defaul is mail to the repo owner ) 
+
+## Kubernetes deployment
 
 ### Try it locally with minikube
 
@@ -187,4 +197,49 @@ Connection: keep-alive
 <html>
 <head>
   <title>Instant Search Tutorial</title>
+```
+
+## Process to Update existing deployment
+
+If a new version of application is released on master branch, a new docker image is automatically built and tagged "latest".
+
+Since our deployement call the latest tag, we only have to rollout on the new latest tag.
+
+```
+kubectl rollout restart deploy/instant-search-deployment
+deployment.apps/instant-search-deployment restarted
+```
+
+A second replicaset is created for the deployement
+```
+ubuntu@ip-172-31-2-203:~$kubectl get replicaset
+NAME                                   DESIRED   CURRENT   READY   AGE
+instant-search-deployment-7c77b84cf4   1         1         0       3s
+instant-search-deployment-7cd6ff8565   2         2         2       3d
+ubuntu@ip-172-31-2-203:~$ kubectl get replicaset
+NAME                                   DESIRED   CURRENT   READY   AGE
+instant-search-deployment-7c77b84cf4   1         1         0       8s
+instant-search-deployment-7cd6ff8565   2         2         2       3d
+ubuntu@ip-172-31-2-203:~$ kubectl get replicaset
+NAME                                   DESIRED   CURRENT   READY   AGE
+instant-search-deployment-7c77b84cf4   2         2         1       12s
+instant-search-deployment-7cd6ff8565   1         1         1       3d
+ubuntu@ip-172-31-2-203:~$ kubectl get replicaset
+NAME                                   DESIRED   CURRENT   READY   AGE
+instant-search-deployment-7c77b84cf4   2         2         2       15s
+instant-search-deployment-7cd6ff8565   0         0         0       3d
+```
+
+At the end the rollout is total without any downtime. 
+
+```
+ubuntu@ip-172-31-2-203:~$ kubectl rollout status deploy/instant-search-deployment
+deployment "instant-search-deployment" successfully rolled out
+```
+
+> We could add readiness and liveness probes in the pod to be sure the service is  totally working before sending traffic on the pod.
+
+If we want to rollback on  specific image version we can update image in the deployment :
+```
+kubectl set image deployment/instant-search-deployment  instant-search=antgilles/algassignement:8afc5f
 ```
