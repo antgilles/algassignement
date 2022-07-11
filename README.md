@@ -243,3 +243,9 @@ If we want to rollback on  specific image version we can update image in the dep
 ```
 kubectl set image deployment/instant-search-deployment  instant-search=antgilles/algassignement:8afc5f
 ```
+
+## Full deployment automatization 
+
+The deployment on the kubernetes cluster could be fully automatized with a specific github action after the scan and test phase and right after the push image on registry.
+
+https://github.com/marketplace/actions/deploy-to-kubernetes-cluster
